@@ -4,7 +4,7 @@ faster and is easier to track.
 
 ## API
 ```js
-import { Ok, Err, tryable } from "@axel669/result"
+import { Ok, Err, tryable, tryawait } from "@axel669/result"
 
 const wrapped = tryable(throwingFunction)
 
@@ -26,5 +26,10 @@ const validate = (input) => {
     }
     return Ok(true)
 }
+
+// await/async supported
+console.log(
+    await tryawait(fetch)("https://echo.axel669.net")
+)
 
 ```

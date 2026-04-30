@@ -45,3 +45,14 @@ export const tryable = (func) =>
             return Err(error)
         }
     }
+export const tryawait = (func) =>
+    async (...args) => {
+        try {
+            return Ok(
+                await func(...args)
+            )
+        }
+        catch (error) {
+            return Err(error)
+        }
+    }

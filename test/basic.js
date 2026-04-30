@@ -1,4 +1,4 @@
-import { Ok, Err, tryable } from "@axel669/result"
+import { Ok, Err, tryable, tryawait } from "@axel669/result"
 
 const div = tryable(
     (a, b) => a / b
@@ -20,4 +20,11 @@ console.log(
     Ok(null).with({
         extra: true,
     })
+)
+
+console.log(
+    await tryawait(fetch)("https://echo.axel669.net")
+)
+console.log(
+    await tryawait(fetch)("https://echo2.axel669.net")
 )
