@@ -1,38 +1,27 @@
-export const Ok = (value) => {
-    const self = {
-        ok: true,
-        value,
-    }
+const result = (ok) => {
+    const self = { ok }
     Object.defineProperty(
         self,
-        "with",
+        "addMeta",
         {
             enumerable: false,
             value: (meta) => {
-                self.meta = meta
+                self.meta = { ...self.meta, ...meta }
                 return self
             }
         }
     )
     return self
 }
+export const Ok = (value) => {
+    const res = result(true)
+    res.value = value
+    return res
+}
 export const Err = (error) => {
-    const self = {
-        ok: false,
-        error,
-    }
-    Object.defineProperty(
-        self,
-        "with",
-        {
-            enumerable: false,
-            value: (meta) => {
-                self.meta = meta
-                return self
-            }
-        }
-    )
-    return self
+    const res = result(false)
+    res.error = error
+    return res
 }
 export const tryable = (func) =>
     (...args) => {
@@ -45,7 +34,7 @@ export const tryable = (func) =>
             return Err(error)
         }
     }
-export const tryawait = (func) =>
+export const tryableAsync = (func) =>
     async (...args) => {
         try {
             return Ok(

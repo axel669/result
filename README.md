@@ -4,7 +4,7 @@ faster and is easier to track.
 
 ## API
 ```js
-import { Ok, Err, tryable, tryawait } from "@axel669/result"
+import { Ok, Err, tryable, tryableAsync } from "@axel669/result"
 
 const wrapped = tryable(throwingFunction)
 
@@ -19,17 +19,20 @@ if (result.ok === false) {
 // value contains the original return of the function
 console.log(result.value)
 
-// make your own, you don't need to throw an error to have a bad result
+// make your own, you don't need to throw an error to have a good/bad result
+// and you can add metadata to the result with a chainable function
 const validate = (input) => {
     if (input.length < 10) {
         return Err("too short")
     }
-    return Ok(true)
+    return Ok(true).addMeta({
+        input,
+    })
 }
 
 // await/async supported
 console.log(
-    await tryawait(fetch)("https://echo.axel669.net")
+    await tryableAsync(fetch)("https://echo.axel669.net")
 )
 
 ```
