@@ -1,9 +1,10 @@
 {
   "name": "@axel669/result",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "",
   "main": "main.js",
   "scripts": {
+    "test": "aegis test/aegis.config.js"
   },
   "keywords": [],
   "author": "",
@@ -15,5 +16,8 @@
   },
   "files": [
     "src/"
-  ]
+  ],
+  "devDependencies": {
+    "@axel669/aegis": "^0.3.1"
+  }
 }
