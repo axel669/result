@@ -1,5 +1,12 @@
+const resultKey = Symbol("result key")
+export const isResult = (obj) => {
+    if (obj === null || obj === undefined) {
+        return false
+    }
+    return obj[resultKey] === true
+}
 const result = (ok) => {
-    const self = { ok }
+    const self = { ok, meta: {} }
     Object.defineProperty(
         self,
         "addMeta",
@@ -9,6 +16,14 @@ const result = (ok) => {
                 self.meta = { ...self.meta, ...meta }
                 return self
             }
+        }
+    )
+    Object.defineProperty(
+        self,
+        resultKey,
+        {
+            enumerable: false,
+            value: true
         }
     )
     return self
@@ -26,9 +41,11 @@ export const Err = (error) => {
 export const tryable = (func) =>
     (...args) => {
         try {
-            return Ok(
-                func(...args)
-            )
+            const result = func(...args)
+            if (isResult(result) === true) {
+                return result
+            }
+            return Ok(result)
         }
         catch (error) {
             return Err(error)
@@ -37,9 +54,11 @@ export const tryable = (func) =>
 export const tryableAsync = (func) =>
     async (...args) => {
         try {
-            return Ok(
-                await func(...args)
-            )
+            const result = await func(...args)
+            if (isResult(result) === true) {
+                return result
+            }
+            return Ok(result)
         }
         catch (error) {
             return Err(error)
