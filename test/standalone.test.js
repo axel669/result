@@ -1,18 +1,19 @@
-import { Ok, Err } from "@axel669/result"
+// @ts-check
+import * as result from "@axel669/result"
 import { Collection, $check, $ } from "@axel669/aegis"
 
-const good = (value) => Ok(value ** 2)
-const bad = (value) => Err(`Bad Value: ${value}`)
+const good = (value) => result.ok(value ** 2)
+const bad = (value) => result.err(`Bad Value: ${value}`)
 
 export default Collection`Standalone`({
     "Created Values": () => {
         $check`Primitive`
-            .value(Ok(100))
+            .value(result.ok(100))
             .eq($.ok, true)
             .eq($.value, 100)
             .eq($.error, undefined)
         $check`Array`
-            .value(Ok([1, 2, 3, 4]))
+            .value(result.ok([1, 2, 3, 4]))
             .eq($.ok, true)
             .eq($.value.length, 4)
             .eq($.value[1], 2)

@@ -1,43 +1,77 @@
+// @ts-check
+
+/**
+@template t
+@typedef {{
+    ok: true,
+    value: t
+    meta: Record<string, any>
+    addMeta: (meta: Record<string, any>) => void
+    [k: symbol]: boolean
+}} Ok<t>
+*/
+/**
+@typedef {{
+    ok: false,
+    error: Error
+    meta: Record<string, any>
+    addMeta: (meta: Record<string, any>) => void
+    [k: symbol]: boolean
+}} Err
+*/
+/** @template t @typedef {Ok<t> | Err} Result<t> */
+
 const resultKey = Symbol("result key")
+/** @type (obj: any) => boolean */
 export const isResult = (obj) => {
     if (obj === null || obj === undefined) {
         return false
     }
     return obj[resultKey] === true
 }
-const result = (ok) => {
-    const self = { ok, meta: {} }
-    Object.defineProperty(
-        self,
-        "addMeta",
-        {
-            enumerable: false,
-            value: (meta) => {
-                self.meta = { ...self.meta, ...meta }
-                return self
-            }
-        }
-    )
-    Object.defineProperty(
-        self,
-        resultKey,
-        {
-            enumerable: false,
-            value: true
-        }
-    )
+
+/**
+Creates a result that indicates the operation was a success.
+@template t
+@type {(value: t, meta?: Record<string, any>) => Ok<t>}
+*/
+export const ok = (value, meta = {}) => {
+    const self = {
+        /** @type true */
+        ok: true,
+        value,
+        meta,
+        /** @type (meta: Record<string, any>) => void */
+        addMeta: (meta) => {
+            self.meta = { ...self.meta, ...meta }
+        },
+        [resultKey]: true
+    }
     return self
 }
-export const Ok = (value) => {
-    const res = result(true)
-    res.value = value
-    return res
+/**
+Creates a result that indicates failure of some kind.
+@type {(error: Error, meta?: Record<string, any>) => Err}
+*/
+export const err = (error, meta = {}) => {
+    const self = {
+        /** @type false */
+        ok: false,
+        error,
+        meta,
+        /** @type (meta: Record<string, any>) => void */
+        addMeta: (meta) => {
+            self.meta = { ...self.meta, ...meta }
+        },
+        [resultKey]: true
+    }
+    return self
 }
-export const Err = (error) => {
-    const res = result(false)
-    res.error = error
-    return res
-}
+/**
+Wraps a function that might throw so that is instead returns a Result<T>.
+@template t
+@type {(func: Function) => ((...args: any[]) => Result<t>)}
+*/
 export const tryable = (func) =>
     (...args) => {
         try {
@@ -45,12 +79,17 @@ export const tryable = (func) =>
             if (isResult(result) === true) {
                 return result
             }
-            return Ok(result)
+            return ok(result)
         }
         catch (error) {
-            return Err(error)
+            // @ts-ignore
+            return err(error)
         }
     }
+/**
+@template t, f
+@type {(func: Function) => ((...args: any[]) => Promise<Result<t>>)}
+*/
 export const tryableAsync = (func) =>
     async (...args) => {
         try {
@@ -58,9 +97,10 @@ export const tryableAsync = (func) =>
             if (isResult(result) === true) {
                 return result
             }
-            return Ok(result)
+            return ok(result)
         }
         catch (error) {
-            return Err(error)
+            // @ts-ignore
+            return err(error)
         }
     }

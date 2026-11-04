@@ -1,29 +1,34 @@
-import { Ok, Err, tryable, tryableAsync } from "@axel669/result"
+// @ts-check
+import * as result from "@axel669/result"
 import { Collection, $check, $ } from "@axel669/aegis"
 
-const getJSON = tryableAsync(
+const getJSON = result.tryableAsync(
     async (url) => {
         const response = await fetch(url)
         if (response.ok === false) {
-            return Err(await response.text()).addMeta({
-                url,
-                status: response.status,
-                text: response.statusText,
-            })
+            return result.err(
+                { name: "FetchFail", message: await response.text() },
+                {
+                    url,
+                    status: response.status,
+                    text: response.statusText,
+                }
+            )
         }
         return await response.json()
     }
 )
 
-const task = tryable(
+const task = result.tryable(
     (code) => {
         if (code === "throw") {
             throw new Error("Failed")
         }
         if (code === "fail") {
-            return Err("broken").addMeta({
-                code,
-            })
+            return result.err(
+                { name: "Fail", message: "broken" },
+                { code }
+            )
         }
         return 69
     }
@@ -51,7 +56,7 @@ export default Collection`Wrapper`({
             .value(bad)
             .eq($.ok, false)
             .eq($.value, undefined)
-            .eq($.error, `broken`)
+            .eq($.error.message, `broken`)
         $check`Added Metadata`
             .value(bad)
             .eq($.meta.code, "fail")
@@ -80,7 +85,7 @@ export default Collection`Wrapper`({
             .value(incomplete)
             .eq($.ok, false)
             .eq($.value, undefined)
-            .eq($.error, `{"message":"Custom return code"}`)
+            .eq($.error.message, `{"message":"Custom return code"}`)
         $check`Added Metadata`
             .value(incomplete)
             .eq($.meta.status, 500)
