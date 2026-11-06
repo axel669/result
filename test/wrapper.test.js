@@ -1,4 +1,3 @@
-// @ts-check
 import * as result from "@axel669/result"
 import { Collection, $check, $ } from "@axel669/aegis"
 
